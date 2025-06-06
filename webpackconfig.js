@@ -1,24 +1,30 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const fs = require('fs');
+
+const pages = fs.readdirSync('./src/pages').filter(file => file.endsWith('.html'));
 
 module.exports = {
-    entry: './src/index.js',
-    output: {
-        filename: 'bundle.js',
-        path: path.resolve(__dirname, 'dist'),
-        clean: true, 
+  entry: './src/index.js',
+  output: {
+    filename: 'main.js',
+    path: path.resolve(__dirname, 'dist'),
+  },
+  plugins: [
+    new CleanWebpackPlugin(),
+    ...pages.map(page => new HtmlWebpackPlugin({
+      filename: page,
+      template: `./src/pages/${page}`
+    }))
+  ],
+  devServer: {
+    static: {
+      directory: path.join(__dirname, 'dist'),
     },
-    plugins: [
-        new CleanWebpackPlugin(),
-        new HtmlWebpackPlugin({
-            template: './src/pages/index.html',
-            filename: 'index.html',
-        }),
-        new HtmlWebpackPlugin({
-            template: './src/pages/about.html',
-            filename: 'about.html',
-        }),
-    ],
-    mode: 'development',
+    compress: true,
+    port: 8080,
+    open: true,
+  },
+  mode: 'development'
 };
